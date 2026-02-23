@@ -1,11 +1,14 @@
 import 'package:dio/dio.dart';
 
 class ProductService {
-  final Dio _dio = Dio();
+  final Dio _dio;
+  ProductService(this._dio);
 
-  ProductService(Dio dio);
+  Future<Response> getProducts(String query) async {
+    final String path = query.isEmpty
+        ? 'https://dummyjson.com/products'
+        : 'https://dummyjson.com/products/search?q=$query';
 
-  Future<Response> getProducts() async {
-    return await _dio.get('https://dummyjson.com/products');
+    return await _dio.get(path);
   }
 }

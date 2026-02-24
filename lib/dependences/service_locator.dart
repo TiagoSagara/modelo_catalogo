@@ -1,5 +1,6 @@
 import 'package:api_produtos/data/repositories/produtos_repository.dart';
 import 'package:api_produtos/data/services/produtos_service.dart';
+import 'package:api_produtos/src/ui/product_detail/view_model/product_detail_bloc.dart';
 import 'package:api_produtos/src/ui/search/view_model/product_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
@@ -24,4 +25,6 @@ void setupDependencies() {
   getIt.registerFactory<ProductBloc>(
     () => ProductBloc(getIt<ProductRepository>()),
   );
+
+  getIt.registerFactory<ProductDetailBloc>(() => ProductDetailBloc());
 }

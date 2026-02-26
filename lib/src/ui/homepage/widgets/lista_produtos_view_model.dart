@@ -1,7 +1,7 @@
-import 'package:api_produtos/routing/router.dart';
 import 'package:api_produtos/src/ui/core/components/custom_buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:api_produtos/routing/routers.dart';
 
 class ListaProdutosViewModel {
   // Adicione o BuildContext como parâmetro no método body
@@ -19,7 +19,7 @@ class ListaProdutosViewModel {
                 text: 'Listar todos os produtos',
                 onPressed: () {
                   // Agora o context é válido e pertence à árvore do GoRouter
-                  context.push(AppRouter.productList);
+                  context.push(AppRouters.productList);
                 },
               ),
               const Divider(color: Colors.blueGrey, thickness: 1),

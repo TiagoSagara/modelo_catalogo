@@ -1,4 +1,4 @@
-import 'package:api_produtos/routing/router.dart';
+import 'package:api_produtos/routing/routers.dart';
 import 'package:api_produtos/src/ui/core/components/custom_appbar.dart';
 import 'package:api_produtos/src/ui/search/widgets/card_search.dart';
 import 'package:api_produtos/src/ui/search/widgets/product_search.dart';
@@ -60,7 +60,7 @@ class ListSearchPage extends StatelessWidget {
                                 return InkWell(
                                   onTap: () {
                                     context.push(
-                                      AppRouter.productDetail,
+                                      AppRouters.productDetail,
                                       extra: product,
                                     );
                                   },

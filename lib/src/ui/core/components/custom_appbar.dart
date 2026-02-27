@@ -38,10 +38,7 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
 
-      actions: [
-        ShoppingCar(onPressed: () {}),
-        const SizedBox(width: 16),
-      ],
+      actions: [ShoppingCar(), const SizedBox(width: 16)],
 
       bottom: const PreferredSize(
         preferredSize: Size.fromHeight(50),

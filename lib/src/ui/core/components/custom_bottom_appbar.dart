@@ -1,4 +1,5 @@
 import 'package:api_produtos/domain/models/categories_bottom_appbar_bloc.dart';
+import 'package:api_produtos/domain/models/categories_model.dart';
 import 'package:api_produtos/routing/routers.dart';
 import 'package:api_produtos/dependences/service_locator.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -26,7 +27,7 @@ class _CustomBottomAppBarState extends State<CustomBottomAppBar> {
     const double borderRadius = 8.0;
 
     return BlocProvider(
-      create: (_) => getIt<CategoryBloc>()..add(FetchCategories()),
+      create: (_) => getIt<CategoryBloc>()..fetchCategories(),
       child: Container(
         color: Colors.transparent,
         height: 50,
@@ -61,7 +62,7 @@ class _CustomBottomAppBarState extends State<CustomBottomAppBar> {
                       );
                     }
 
-                    List<String> items = [];
+                    List<CategoryModel> items = [];
                     if (state is CategoryLoaded) {
                       items = state.categories;
                     }
@@ -84,21 +85,22 @@ class _CustomBottomAppBarState extends State<CustomBottomAppBar> {
                       ),
                       // Estilização do menu que abre
                       borderRadius: BorderRadius.circular(borderRadius),
-                      items: items.map((String category) {
+                      items: items.map((CategoryModel category) {
                         return DropdownMenuItem<String>(
-                          value: category,
+                          value: category.slug,
                           child: Text(
-                            category.toLowerCase(),
+                            category.name,
                             style: const TextStyle(fontSize: 13),
                             overflow: TextOverflow.ellipsis,
                           ),
                         );
                       }).toList(),
-                      onChanged: (String? selectedCategory) {
-                        if (selectedCategory != null) {
+                      onChanged: (String? selectedCategorySlug) {
+                        if (selectedCategorySlug != null) {
+                          // ✅ Navegando pelo nome da rota definido no router.dart
                           context.pushNamed(
                             AppRouters.productGroup,
-                            pathParameters: {'category': selectedCategory},
+                            pathParameters: {'category': selectedCategorySlug},
                           );
                         }
                       },

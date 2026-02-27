@@ -5,10 +5,13 @@ class ProductService {
   ProductService(this._dio);
 
   Future<Response> getProducts(String query) async {
-    final String path = query.isEmpty
+    final String url = query.isEmpty
         ? 'https://dummyjson.com/products'
-        : 'https://dummyjson.com/products/search?q=$query';
+        : 'https://dummyjson.com/products/search';
 
-    return await _dio.get(path);
+    return await _dio.get(
+      url,
+      queryParameters: query.isEmpty ? null : {'q': query},
+    );
   }
 }

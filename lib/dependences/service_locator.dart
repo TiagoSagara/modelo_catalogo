@@ -4,7 +4,7 @@ import 'package:api_produtos/data/services/categories_service.dart';
 import 'package:api_produtos/data/services/produtos_service.dart';
 import 'package:api_produtos/domain/models/categories_bottom_appbar_bloc.dart';
 import 'package:api_produtos/src/ui/product_detail/view_model/product_detail_bloc.dart';
-import 'package:api_produtos/src/ui/search/view_model/product_bloc.dart';
+import 'package:api_produtos/src/ui/search/products/view_model/product_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
 
@@ -26,7 +26,8 @@ void setupDependencies() {
 
   // Blocs / ViewModels (Factory pois queremos uma nova instância ao entrar na tela)
   getIt.registerFactory<ProductBloc>(
-    () => ProductBloc(getIt<ProductRepository>()),
+    () =>
+        ProductBloc(getIt<ProductRepository>(), getIt<CategoriesRepository>()),
   );
 
   getIt.registerFactory<ProductDetailBloc>(() => ProductDetailBloc());
@@ -37,15 +38,15 @@ void setupDependencies() {
   getIt.registerLazySingleton<CategorySelectProductService>(
     () => CategorySelectProductService(getIt<Dio>()),
   );
-  getIt.registerLazySingleton<CategoryProductsService>(
-    () => CategoryProductsService(getIt<Dio>()),
+  getIt.registerLazySingleton<CategoryService>(
+    () => CategoryService(getIt<Dio>()),
   );
 
   // Repository Categorias
   getIt.registerLazySingleton<CategoriesRepository>(
     () => CategoriesRepository(
       getIt<CategoryListService>(),
-      getIt<CategoryProductsService>(),
+      getIt<CategoryService>(),
       getIt<CategorySelectProductService>(),
     ),
   );

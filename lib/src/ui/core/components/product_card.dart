@@ -1,4 +1,5 @@
 import 'package:api_produtos/src/ui/core/components/product_image_default.dart';
+import 'package:api_produtos/utils/price_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:api_produtos/domain/models/product_model.dart';
 
@@ -47,7 +48,7 @@ class CardSearch extends StatelessWidget {
             ),
           ),
           Text(
-            'R\$ ${product.price}',
+            PriceFormatter.toReal(product.price),
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,

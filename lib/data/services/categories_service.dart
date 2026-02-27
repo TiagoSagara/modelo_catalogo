@@ -22,14 +22,19 @@ class CategorySelectProductService {
   }
 }
 
-// AJUSTAR - RESPOSTA POSSUÍ UM JSON A MAIS COM OS PRODUTOS
-class CategoryProductsService {
+class CategoryService {
   final Dio _dio;
-  CategoryProductsService(this._dio);
+  CategoryService(this._dio);
 
-  Future<Response> getCategoryProducts() async {
-    final String path = 'https://dummyjson.com/products/categories';
+  // Retorna a lista de objetos [slug, name, url]
+  Future<Response> getAllCategories() async {
+    return await _dio.get('https://dummyjson.com/products/categories');
+  }
 
-    return await _dio.get(path);
+  // Retorna os produtos de uma categoria específica
+  Future<Response> getProductsByCategory(String categorySlug) async {
+    return await _dio.get(
+      'https://dummyjson.com/products/category/$categorySlug',
+    );
   }
 }

@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:api_produtos/src/ui/search/view_model/product_bloc.dart';
 import 'package:api_produtos/src/ui/core/style/app_colors.dart';
 
 class ProductSearch extends StatefulWidget {
-  const ProductSearch({super.key});
+  const ProductSearch({super.key, required this.onSearch});
+
+  final Function(String) onSearch;
 
   @override
   State<ProductSearch> createState() => _ProductSearchState();
@@ -19,16 +19,10 @@ class _ProductSearchState extends State<ProductSearch> {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () {
       if (mounted) {
-        context.read<ProductBloc>().loadProducts(query);
+        print("1. Componente disparou busca: $query");
+        widget.onSearch(query);
       }
     });
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    _debounce?.cancel();
-    super.dispose();
   }
 
   @override
@@ -46,13 +40,13 @@ class _ProductSearchState extends State<ProductSearch> {
               hintText: 'Pesquisar...',
               filled: true,
               fillColor: AppColors.background,
-              hintStyle: TextStyle(color: greyColor),
+              hintStyle: const TextStyle(color: greyColor),
               prefixIcon: const Icon(Icons.search),
               suffixIcon: IconButton(
                 icon: const Icon(Icons.clear),
                 onPressed: () {
                   _controller.clear();
-                  context.read<ProductBloc>().loadProducts('');
+                  widget.onSearch(''); // Reseta a busca
                 },
               ),
               border: OutlineInputBorder(

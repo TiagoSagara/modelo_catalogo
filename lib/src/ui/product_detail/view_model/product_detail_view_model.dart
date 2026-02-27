@@ -5,6 +5,7 @@ import 'package:api_produtos/src/ui/core/components/product_image_default.dart';
 import 'package:api_produtos/src/ui/core/style/app_colors.dart';
 import 'package:api_produtos/src/ui/core/style/app_dimens.dart';
 import 'package:api_produtos/src/ui/product_detail/view_model/product_detail_bloc.dart';
+import 'package:api_produtos/utils/price_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -71,12 +72,12 @@ class ProductDetailViewModel extends StatelessWidget {
                         children: [
                           Text(
                             'Estoque: ${product.stock}',
-                            style: const TextStyle(fontSize: 20),
+                            style: const TextStyle(fontSize: 18),
                           ),
-                          const SizedBox(width: 20),
+                          const SizedBox(width: 18),
                           Text(
-                            'Preço unitário: ${product.price}',
-                            style: const TextStyle(fontSize: 20),
+                            'Preço unitário: ${PriceFormatter.toReal(product.price)}',
+                            style: const TextStyle(fontSize: 18),
                           ),
                         ],
                       ),

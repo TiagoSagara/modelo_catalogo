@@ -1,9 +1,10 @@
+import 'package:api_produtos/routing/routers.dart';
 import 'package:api_produtos/src/ui/core/style/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class ShoppingCar extends StatelessWidget {
-  final Function() onPressed;
-  const ShoppingCar({super.key, required this.onPressed});
+  const ShoppingCar({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +16,7 @@ class ShoppingCar extends StatelessWidget {
           color: verdePadrao,
           size: 35,
         ),
-        onPressed: onPressed,
+        onPressed: () => context.push(AppRouters.salePage),
       ),
     );
   }

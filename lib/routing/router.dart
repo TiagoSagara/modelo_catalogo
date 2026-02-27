@@ -1,8 +1,7 @@
-import 'package:api_produtos/domain/models/categories_model.dart';
 import 'package:api_produtos/src/ui/homepage/home_page.dart';
 import 'package:api_produtos/src/ui/sale/sale_page.dart';
-import 'package:api_produtos/src/ui/search/categories_list_page.dart';
-import 'package:api_produtos/src/ui/search/list_search_page.dart';
+import 'package:api_produtos/src/ui/search/products/list_search_page.dart';
+import 'package:api_produtos/src/ui/search/categories/categories_list_page.dart';
 import 'package:api_produtos/src/ui/product_detail/product_detail_page.dart';
 import 'package:api_produtos/domain/models/product_model.dart';
 import 'package:go_router/go_router.dart';
@@ -28,10 +27,11 @@ class AppRouter {
         },
       ),
       GoRoute(
-        path: AppRouters.productGroup,
+        name: AppRouters.productGroup, // ✅ Adicionado o nome da rota
+        path: AppRouters.productGroupPath, // ✅ Usando o path com parâmetro
         builder: (context, state) {
-          final category = state.extra as Category;
-          return Categories(category: category);
+          final String? categorySlug = state.pathParameters['category'];
+          return CategoriesListPage(categorySlug: categorySlug);
         },
       ),
       GoRoute(

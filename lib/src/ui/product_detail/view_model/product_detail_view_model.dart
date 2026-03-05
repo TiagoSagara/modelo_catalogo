@@ -1,3 +1,4 @@
+import 'package:api_produtos/dependences/service_locator.dart';
 import 'package:api_produtos/domain/models/product_model.dart';
 import 'package:api_produtos/src/ui/core/components/custom_buttons.dart';
 import 'package:api_produtos/src/ui/core/components/custom_quantity_buttom.dart';
@@ -5,6 +6,7 @@ import 'package:api_produtos/src/ui/core/components/product_image_default.dart';
 import 'package:api_produtos/src/ui/core/style/app_colors.dart';
 import 'package:api_produtos/src/ui/core/style/app_dimens.dart';
 import 'package:api_produtos/src/ui/product_detail/view_model/product_detail_bloc.dart';
+import 'package:api_produtos/src/ui/sale/view_model/sale_bloc.dart';
 import 'package:api_produtos/utils/price_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -155,7 +157,9 @@ class ProductDetailViewModel extends StatelessWidget {
           width: buttonWidth,
           child: CustomButtons.textButton(
             text: 'Adicionar ao carrinho',
-            onPressed: () {},
+            onPressed: () {
+              getIt<SaleBloc>().addToCart(product);
+            },
             icon: Icons.add_shopping_cart_rounded,
           ),
         ),

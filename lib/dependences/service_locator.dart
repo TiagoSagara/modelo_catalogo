@@ -4,6 +4,7 @@ import 'package:api_produtos/data/services/categories_service.dart';
 import 'package:api_produtos/data/services/produtos_service.dart';
 import 'package:api_produtos/domain/models/categories_bottom_appbar_bloc.dart';
 import 'package:api_produtos/src/ui/product_detail/view_model/product_detail_bloc.dart';
+import 'package:api_produtos/src/ui/sale/view_model/sale_bloc.dart';
 import 'package:api_produtos/src/ui/search/products/view_model/product_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
@@ -55,4 +56,7 @@ void setupDependencies() {
   getIt.registerFactory<CategoryBloc>(
     () => CategoryBloc(getIt<CategoriesRepository>()),
   );
+
+  // Bloc Sale - carrinho de compras
+  getIt.registerLazySingleton<SaleBloc>(() => SaleBloc());
 }

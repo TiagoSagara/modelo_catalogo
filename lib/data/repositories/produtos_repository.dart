@@ -15,8 +15,6 @@ class ProductRepository {
       }
       return [];
     } catch (e) {
-      // Log de erro para debug
-      print("Erro no Repository: $e");
       rethrow;
     }
   }

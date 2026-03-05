@@ -19,7 +19,6 @@ class _ProductSearchState extends State<ProductSearch> {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () {
       if (mounted) {
-        print("1. Componente disparou busca: $query");
         widget.onSearch(query);
       }
     });

@@ -32,23 +32,27 @@ class ProductDetailViewModel extends StatelessWidget {
               ? CrossAxisAlignment.stretch
               : CrossAxisAlignment.center,
           children: [
-            Card(
-              child: product.thumbnail.isEmpty
-                  ? buildPlaceholder()
-                  : Image.network(
-                      product.thumbnail,
-                      height: imageSize,
-                      width: imageSize,
-                      fit: BoxFit.contain,
-                      errorBuilder: (context, error, stackTrace) =>
-                          buildPlaceholder(),
-                    ),
+            SizedBox(
+              height: 350,
+              child: Card(
+                child: product.thumbnail.isEmpty
+                    ? buildPlaceholder()
+                    : Image.network(
+                        product.thumbnail,
+                        height: imageSize,
+                        width: imageSize,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) =>
+                            buildPlaceholder(),
+                      ),
+              ),
             ),
 
             const SizedBox(width: 20, height: 20),
 
             SizedBox(
               width: isMobile ? null : 600,
+              height: 350,
               child: Card(
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
@@ -92,7 +96,7 @@ class ProductDetailViewModel extends StatelessWidget {
                         selector: (state) => state.totalPrice,
                         builder: (context, totalPrice) {
                           return Text(
-                            'Total: R\$ ${totalPrice.toStringAsFixed(2)}',
+                            'Total: ${PriceFormatter.toReal(product.price)}',
                             style: const TextStyle(
                               fontSize: 30,
                               fontWeight: FontWeight.bold,
@@ -104,18 +108,24 @@ class ProductDetailViewModel extends StatelessWidget {
 
                       const SizedBox(height: 10),
 
-                      CustomQuantityButtom(
-                        estoque: product.stock,
-                        onChanged: (int qty) {
-                          context.read<ProductDetailBloc>().add(
-                            UpdateQuantity(qty),
-                          );
-                        },
-                      ),
+                      if (product.stock <= 0)
+                        Text(
+                          'Produto indisponível no momento.',
+                          style: TextStyle(fontSize: 18),
+                        )
+                      else
+                        CustomQuantityButtom(
+                          estoque: product.stock,
+                          onChanged: (int qty) {
+                            context.read<ProductDetailBloc>().add(
+                              UpdateQuantity(qty),
+                            );
+                          },
+                        ),
 
                       const SizedBox(height: 30),
 
-                      _buildActionButtons(isMobile),
+                      if (product.stock > 0) _buildActionButtons(isMobile),
                     ],
                   ),
                 ),

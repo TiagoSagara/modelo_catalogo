@@ -21,7 +21,6 @@ class ProductDetailViewModel extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < AppDimens.kLargeScreen;
     final layoutDirection = isMobile ? Axis.vertical : Axis.horizontal;
-
     final imageSize = isMobile ? screenWidth * 0.85 : 329.0;
 
     return SingleChildScrollView(
@@ -34,6 +33,7 @@ class ProductDetailViewModel extends StatelessWidget {
               ? CrossAxisAlignment.stretch
               : CrossAxisAlignment.center,
           children: [
+            // Seção da Imagem
             SizedBox(
               height: 350,
               child: Card(
@@ -52,6 +52,7 @@ class ProductDetailViewModel extends StatelessWidget {
 
             const SizedBox(width: 20, height: 20),
 
+            // Seção de Detalhes
             SizedBox(
               width: isMobile ? null : 600,
               height: 350,
@@ -64,7 +65,7 @@ class ProductDetailViewModel extends StatelessWidget {
                     children: [
                       Text(
                         product.title,
-                        maxLines: 3,
+                        maxLines: 2,
                         style: const TextStyle(
                           fontSize: 25,
                           fontWeight: FontWeight.bold,
@@ -90,6 +91,7 @@ class ProductDetailViewModel extends StatelessWidget {
 
                       const SizedBox(height: 10),
 
+                      // CORREÇÃO: Exibindo o valor total dinâmico baseado na quantidade
                       BlocSelector<
                         ProductDetailBloc,
                         ProductDetailState,
@@ -98,7 +100,7 @@ class ProductDetailViewModel extends StatelessWidget {
                         selector: (state) => state.totalPrice,
                         builder: (context, totalPrice) {
                           return Text(
-                            'Total: ${PriceFormatter.toReal(product.price)}',
+                            'Total: ${PriceFormatter.toReal(totalPrice)}',
                             style: const TextStyle(
                               fontSize: 30,
                               fontWeight: FontWeight.bold,
@@ -111,9 +113,9 @@ class ProductDetailViewModel extends StatelessWidget {
                       const SizedBox(height: 10),
 
                       if (product.stock <= 0)
-                        Text(
+                        const Text(
                           'Produto indisponível no momento.',
-                          style: TextStyle(fontSize: 18),
+                          style: TextStyle(fontSize: 18, color: Colors.red),
                         )
                       else
                         CustomQuantityButtom(
@@ -125,9 +127,10 @@ class ProductDetailViewModel extends StatelessWidget {
                           },
                         ),
 
-                      const SizedBox(height: 30),
+                      const Spacer(), // Empurra os botões para o final do Card
 
-                      if (product.stock > 0) _buildActionButtons(isMobile),
+                      if (product.stock > 0)
+                        _buildActionButtons(isMobile, context),
                     ],
                   ),
                 ),
@@ -139,7 +142,7 @@ class ProductDetailViewModel extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButtons(bool isMobile) {
+  Widget _buildActionButtons(bool isMobile, BuildContext context) {
     final double? buttonWidth = isMobile ? null : 300;
 
     return Column(
@@ -148,7 +151,9 @@ class ProductDetailViewModel extends StatelessWidget {
           width: buttonWidth,
           child: CustomButtons.textButton(
             text: 'Comprar agora',
-            onPressed: () {},
+            onPressed: () {
+              // Lógica de compra direta
+            },
             icon: Icons.shopping_bag_outlined,
           ),
         ),
@@ -158,7 +163,18 @@ class ProductDetailViewModel extends StatelessWidget {
           child: CustomButtons.textButton(
             text: 'Adicionar ao carrinho',
             onPressed: () {
-              getIt<SaleBloc>().addToCart(product);
+              // CORREÇÃO: Enviando a quantidade atual do Bloc para o carrinho
+              final currentQty = context
+                  .read<ProductDetailBloc>()
+                  .state
+                  .quantity;
+              getIt<SaleBloc>().addToCart(product, quantity: currentQty);
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('${product.title} adicionado ao carrinho!'),
+                ),
+              );
             },
             icon: Icons.add_shopping_cart_rounded,
           ),

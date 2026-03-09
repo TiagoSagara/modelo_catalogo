@@ -12,6 +12,18 @@ abstract class SaleDimens {
       return SaleDimensDesktop.maxWidth;
     }
   }
+
+  static double buttonWidth(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+
+    if (screenWidth < 600) {
+      return double.infinity;
+    } else if (screenWidth < 1200) {
+      return screenWidth * 0.5;
+    } else {
+      return screenWidth * 0.33;
+    }
+  }
 }
 
 class SaleDimensMobile extends SaleDimens {

@@ -1,3 +1,5 @@
+import 'package:api_produtos/dependences/service_locator.dart';
+import 'package:api_produtos/src/ui/checkout/checkout_dialog.dart';
 import 'package:api_produtos/src/ui/core/components/custom_appbar.dart';
 import 'package:api_produtos/src/ui/core/style/app_colors.dart';
 import 'package:api_produtos/src/ui/sale/view_model/sale_bloc.dart';
@@ -66,7 +68,7 @@ class _SalePageState extends State<SalePage> {
           Icon(Icons.shopping_cart_outlined, size: 60, color: Colors.grey),
           SizedBox(height: 10),
           Text(
-            "Seu carrinho está vazio",
+            'Seu carrinho está vazio',
             style: TextStyle(color: Colors.grey, fontSize: 16),
           ),
         ],
@@ -140,7 +142,7 @@ class _SalePageState extends State<SalePage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Total de produtos: ${state.products.length}'),
+              Text('Total de itens: ${state.products.length}'),
               Text(
                 'Total: ${PriceFormatter.toReal(state.totalValue)}',
                 style: const TextStyle(
@@ -160,7 +162,10 @@ class _SalePageState extends State<SalePage> {
               ),
               onPressed: state.products.isEmpty
                   ? null
-                  : () => viewModel.finishSale(),
+                  : () => showCheckoutDialog(
+                      context: context,
+                      cartItems: state.products,
+                    ),
               child: const Text(
                 'FINALIZAR COMPRA',
                 style: TextStyle(color: Colors.white),

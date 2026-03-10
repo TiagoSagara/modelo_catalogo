@@ -13,13 +13,11 @@ class ProductDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      // Recuperando via Get_It
       create: (context) =>
           getIt<ProductDetailBloc>()..add(LoadProductDetail(product)),
       child: Scaffold(
         appBar: CustomAppbar(onItemSelected: (id) {}),
         body: BlocBuilder<ProductDetailBloc, ProductDetailState>(
-          // BuildWhen evita que a tela inteira redesenhe se apenas a quantidade mudar
           buildWhen: (previous, current) =>
               previous.isLoading != current.isLoading,
           builder: (context, state) {

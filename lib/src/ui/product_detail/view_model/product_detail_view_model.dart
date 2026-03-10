@@ -6,6 +6,7 @@ import 'package:api_produtos/src/ui/core/components/product_image_default.dart';
 import 'package:api_produtos/src/ui/core/style/app_colors.dart';
 import 'package:api_produtos/src/ui/core/style/app_dimens.dart';
 import 'package:api_produtos/src/ui/product_detail/view_model/product_detail_bloc.dart';
+import 'package:api_produtos/src/ui/product_detail/widgets/add_card_popup.dart';
 import 'package:api_produtos/src/ui/sale/view_model/sale_bloc.dart';
 import 'package:api_produtos/utils/price_formatter.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +34,6 @@ class ProductDetailViewModel extends StatelessWidget {
               ? CrossAxisAlignment.stretch
               : CrossAxisAlignment.center,
           children: [
-            // Seção da Imagem
             SizedBox(
               height: 350,
               child: Card(
@@ -52,7 +52,6 @@ class ProductDetailViewModel extends StatelessWidget {
 
             const SizedBox(width: 20, height: 20),
 
-            // Seção de Detalhes
             SizedBox(
               width: isMobile ? null : 600,
               height: 350,
@@ -91,7 +90,6 @@ class ProductDetailViewModel extends StatelessWidget {
 
                       const SizedBox(height: 10),
 
-                      // CORREÇÃO: Exibindo o valor total dinâmico baseado na quantidade
                       BlocSelector<
                         ProductDetailBloc,
                         ProductDetailState,
@@ -127,7 +125,7 @@ class ProductDetailViewModel extends StatelessWidget {
                           },
                         ),
 
-                      const Spacer(), // Empurra os botões para o final do Card
+                      const Spacer(),
 
                       if (product.stock > 0)
                         _buildActionButtons(isMobile, context),
@@ -163,17 +161,17 @@ class ProductDetailViewModel extends StatelessWidget {
           child: CustomButtons.textButton(
             text: 'Adicionar ao carrinho',
             onPressed: () {
-              // CORREÇÃO: Enviando a quantidade atual do Bloc para o carrinho
               final currentQty = context
                   .read<ProductDetailBloc>()
                   .state
                   .quantity;
               getIt<SaleBloc>().addToCart(product, quantity: currentQty);
 
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('${product.title} adicionado ao carrinho!'),
-                ),
+              showAddedToCartPopup(
+                context: context,
+                productTitle: product.title,
+                quantity: currentQty,
+                thumbnail: product.thumbnail,
               );
             },
             icon: Icons.add_shopping_cart_rounded,

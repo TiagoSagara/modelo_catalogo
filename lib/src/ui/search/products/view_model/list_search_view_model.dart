@@ -8,7 +8,8 @@ class ProductLoading extends ProductState {}
 
 class ProductLoaded extends ProductState {
   final List<Product> products;
-  ProductLoaded(this.products);
+  final bool hasReachedMax;
+  ProductLoaded(this.products, {this.hasReachedMax = false});
 }
 
 class ProductError extends ProductState {

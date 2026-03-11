@@ -1,9 +1,8 @@
-import 'package:api_produtos/dependences/service_locator.dart';
 import 'package:api_produtos/src/ui/checkout/checkout_dialog.dart';
 import 'package:api_produtos/src/ui/core/components/custom_appbar.dart';
 import 'package:api_produtos/src/ui/core/style/app_colors.dart';
 import 'package:api_produtos/src/ui/sale/view_model/sale_bloc.dart';
-import 'package:api_produtos/src/ui/sale/view_model/sale_dimens.dart';
+import 'package:api_produtos/src/ui/core/style/small_dimens.dart';
 import 'package:api_produtos/src/ui/sale/view_model/sale_view_model.dart';
 import 'package:api_produtos/utils/price_formatter.dart';
 import 'package:flutter/material.dart';

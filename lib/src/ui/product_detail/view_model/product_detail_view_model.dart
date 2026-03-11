@@ -1,5 +1,6 @@
 import 'package:api_produtos/dependences/service_locator.dart';
 import 'package:api_produtos/domain/models/product_model.dart';
+import 'package:api_produtos/routing/routers.dart';
 import 'package:api_produtos/src/ui/core/components/custom_buttons.dart';
 import 'package:api_produtos/src/ui/core/components/custom_quantity_buttom.dart';
 import 'package:api_produtos/src/ui/core/components/product_image_default.dart';
@@ -11,6 +12,7 @@ import 'package:api_produtos/src/ui/sale/view_model/sale_bloc.dart';
 import 'package:api_produtos/utils/price_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 class ProductDetailViewModel extends StatelessWidget {
   final Product product;
@@ -150,7 +152,13 @@ class ProductDetailViewModel extends StatelessWidget {
           child: CustomButtons.textButton(
             text: 'Comprar agora',
             onPressed: () {
-              // Lógica de compra direta
+              final currentQty = context
+                  .read<ProductDetailBloc>()
+                  .state
+                  .quantity;
+              getIt<SaleBloc>().addToCart(product, quantity: currentQty);
+
+              context.push(AppRouters.salePage);
             },
             icon: Icons.shopping_bag_outlined,
           ),

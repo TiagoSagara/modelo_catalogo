@@ -24,6 +24,16 @@ abstract class SaleDimens {
       return screenWidth * 0.33;
     }
   }
+
+  static double popupWidth(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+
+    if (screenWidth < 600) {
+      return double.infinity;
+    } else {
+      return 450;
+    }
+  }
 }
 
 class SaleDimensMobile extends SaleDimens {

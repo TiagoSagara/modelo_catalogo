@@ -1,4 +1,5 @@
 import 'package:api_produtos/src/ui/core/style/app_colors.dart';
+import 'package:api_produtos/src/ui/core/style/small_dimens.dart';
 import 'package:flutter/material.dart';
 
 void showAddedToCartPopup({
@@ -46,8 +47,8 @@ class _AddedToCartPopupState extends State<_AddedToCartPopup>
   late final Animation<Offset> _slideAnim;
   late final Animation<double> _progressAnim;
 
-  static const _duration = Duration(seconds: 4);
-  static const _animIn = Duration(milliseconds: 420);
+  static const _duration = Duration(seconds: 3);
+  static const _animIn = Duration(milliseconds: 350);
   static const _animOut = Duration(milliseconds: 320);
 
   @override
@@ -103,22 +104,33 @@ class _AddedToCartPopupState extends State<_AddedToCartPopup>
 
   @override
   Widget build(BuildContext context) {
+    final double maxAllowedWidth = SaleDimens.popupWidth(context);
+
     return Positioned(
       top: MediaQuery.of(context).padding.top + 16,
-      left: 16,
-      right: 16,
-      child: FadeTransition(
-        opacity: _fadeAnim,
-        child: SlideTransition(
-          position: _slideAnim,
-          child: Material(
-            color: Colors.transparent,
-            child: _PopupCard(
-              productTitle: widget.productTitle,
-              quantity: widget.quantity,
-              thumbnail: widget.thumbnail,
-              progressAnim: _progressAnim,
-              onDismiss: _dismiss,
+      left: 0,
+      right: 0,
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: maxAllowedWidth),
+            child: FadeTransition(
+              opacity: _fadeAnim,
+              child: SlideTransition(
+                position: _slideAnim,
+                child: Material(
+                  color: Colors.transparent,
+                  child: _PopupCard(
+                    productTitle: widget.productTitle,
+                    quantity: widget.quantity,
+                    thumbnail: widget.thumbnail,
+                    progressAnim: _progressAnim,
+                    onDismiss: _dismiss,
+                  ),
+                ),
+              ),
             ),
           ),
         ),

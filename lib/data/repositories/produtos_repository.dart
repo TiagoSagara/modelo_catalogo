@@ -5,15 +5,11 @@ class ProductRepository {
   final ProductService _service;
   ProductRepository(this._service);
 
-  Future<List<Product>> fetchProducts(String query) async {
+  Future<List<Product>> fetchProducts(String query, {int skip = 0}) async {
     try {
-      final response = await _service.getProducts(query);
-
-      if (response.data != null && response.data['products'] != null) {
-        final List list = response.data['products'];
-        return list.map((e) => Product.fromJson(e)).toList();
-      }
-      return [];
+      final response = await _service.getProducts(query, skip: skip);
+      final List list = response.data['products'];
+      return list.map((e) => Product.fromJson(e)).toList();
     } catch (e) {
       rethrow;
     }

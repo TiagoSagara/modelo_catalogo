@@ -1,47 +1,37 @@
 import 'package:api_produtos/data/services/categories_service.dart';
 import 'package:api_produtos/domain/models/categories_model.dart';
 import 'package:api_produtos/domain/models/product_model.dart';
-import 'package:dio/dio.dart';
+import 'package:api_produtos/data/repositories/produtos_repository.dart';
 
 class CategoriesRepository {
-  final CategoryListService _categoryListService;
-  final CategorySelectProductService _categorySelectProductService;
   final CategoryService _service;
+  final ProductRepository _productRepository;
 
-  CategoriesRepository(
-    this._categoryListService,
-    this._service,
-    this._categorySelectProductService,
-  );
+  CategoriesRepository(this._service, this._productRepository);
 
-  Future<Response> getCategoryList() async {
-    return await _categoryListService.getCategoryList();
-  }
-
-  Future<Response> getCategorySelectProduct(String category) async {
-    return await _categorySelectProductService.getCategorySelectProduct(
-      category,
-    );
-  }
-
+  /// Retorna a lista de categorias do e-commerce.
   Future<List<CategoryModel>> getCategories() async {
     try {
-      final response = await _service.getAllCategories();
-      final List data = response.data;
-      return data.map((json) => CategoryModel.fromJson(json)).toList();
+      final response = await _service.getCategories();
+      final List data = response.data['data'] as List;
+      return data
+          .map((json) => CategoryModel.fromJson(json as Map<String, dynamic>))
+          .toList();
     } catch (e) {
-      throw Exception("Erro ao carregar categorias");
+      throw Exception('Erro ao carregar categorias');
     }
   }
 
-  // Busca produtos por categoria e mapeia para sua ProductModel existente
-  Future<List<Product>> getProductsByCategory(String slug) async {
-    try {
-      final response = await _service.getProductsByCategory(slug);
-      final List productsJson = response.data['products'];
-      return productsJson.map((json) => Product.fromJson(json)).toList();
-    } catch (e) {
-      throw Exception("Erro ao carregar produtos da categoria");
-    }
+  /// Busca produtos por ID de categoria.
+  Future<List<Product>> getProductsByCategory(
+    int categoryId, {
+    int page = 1,
+    int limit = 20,
+  }) async {
+    return _productRepository.fetchProductsByCategory(
+      categoryId,
+      page: page,
+      limit: limit,
+    );
   }
 }

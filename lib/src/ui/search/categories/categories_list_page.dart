@@ -9,8 +9,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 class CategoriesListPage extends StatefulWidget {
-  final String? categorySlug;
-  const CategoriesListPage({super.key, this.categorySlug});
+  /// ID numérico da categoria (id_grp)
+  final int? categoryId;
+
+  /// Nome da categoria para exibição no cabeçalho
+  final String? categoryName;
+
+  const CategoriesListPage({
+    super.key,
+    this.categoryId,
+    this.categoryName,
+  });
 
   @override
   State<CategoriesListPage> createState() => _CategoriesListPageState();
@@ -29,16 +38,20 @@ class _CategoriesListPageState extends State<CategoriesListPage> {
   @override
   void didUpdateWidget(covariant CategoriesListPage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.categorySlug != widget.categorySlug) {
+    if (oldWidget.categoryId != widget.categoryId) {
       _loadData();
     }
   }
 
   void _loadData() {
-    if (widget.categorySlug != null && widget.categorySlug!.isNotEmpty) {
-      _productBloc.loadProducts(widget.categorySlug!, isCategory: true);
+    if (widget.categoryId != null) {
+      _productBloc.loadProducts(
+        '',
+        isCategory: true,
+        categoryId: widget.categoryId,
+      );
     } else {
-      _productBloc.loadProducts('', isCategory: false);
+      _productBloc.loadProducts('');
     }
   }
 
@@ -50,7 +63,7 @@ class _CategoriesListPageState extends State<CategoriesListPage> {
         appBar: CustomAppbar(onItemSelected: (id) {}),
         body: Column(
           children: [
-            if (widget.categorySlug != null)
+            if (widget.categoryName != null)
               Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
@@ -59,7 +72,7 @@ class _CategoriesListPageState extends State<CategoriesListPage> {
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    'Categoria: ${widget.categorySlug!.toUpperCase()}',
+                    'Categoria: ${widget.categoryName!.toUpperCase()}',
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,

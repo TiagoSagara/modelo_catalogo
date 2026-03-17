@@ -27,11 +27,18 @@ class AppRouter {
         },
       ),
       GoRoute(
-        name: AppRouters.productGroup, // ✅ Adicionado o nome da rota
-        path: AppRouters.productGroupPath, // ✅ Usando o path com parâmetro
+        name: AppRouters.productGroup,
+        path: AppRouters.productGroupPath,
         builder: (context, state) {
-          final String? categorySlug = state.pathParameters['category'];
-          return CategoriesListPage(categorySlug: categorySlug);
+          // categoryId vem como path parameter (string) → converte para int
+          final String? categoryIdStr = state.pathParameters['category'];
+          final int? categoryId = int.tryParse(categoryIdStr ?? '');
+          // categoryName vem como extra (string opcional)
+          final String? categoryName = state.extra as String?;
+          return CategoriesListPage(
+            categoryId: categoryId,
+            categoryName: categoryName,
+          );
         },
       ),
       GoRoute(

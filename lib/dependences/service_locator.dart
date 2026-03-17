@@ -1,6 +1,9 @@
+import 'package:api_produtos/data/config/api_config.dart';
 import 'package:api_produtos/data/repositories/categories_repository.dart';
 import 'package:api_produtos/data/repositories/checkout_repository.dart';
 import 'package:api_produtos/data/repositories/produtos_repository.dart';
+import 'package:api_produtos/data/services/auth_interceptor.dart';
+import 'package:api_produtos/data/services/auth_service.dart';
 import 'package:api_produtos/data/services/categories_service.dart';
 import 'package:api_produtos/data/services/checkout_service.dart';
 import 'package:api_produtos/data/services/produtos_service.dart';
@@ -16,7 +19,28 @@ final getIt = GetIt.instance;
 
 void setupDependencies() {
   // ── Cliente HTTP ────────────────────────────────────────────────────────────
-  getIt.registerLazySingleton<Dio>(() => Dio());
+  getIt.registerLazySingleton<Dio>(() {
+    final dio = Dio(
+      BaseOptions(
+        baseUrl: ApiConfig.baseUrl,
+        connectTimeout: const Duration(seconds: 15),
+        receiveTimeout: const Duration(seconds: 15),
+        headers: {'Content-Type': 'application/json'},
+      ),
+    );
+    // Injeta o interceptor de autenticação após o AuthService estar registrado
+    dio.interceptors.add(getIt<AuthInterceptor>());
+    return dio;
+  });
+
+  // ── Auth ────────────────────────────────────────────────────────────────────
+  // AuthService usa um Dio limpo (sem o interceptor que dependeria dele mesmo)
+  getIt.registerLazySingleton<AuthService>(
+    () => AuthService(Dio()),
+  );
+  getIt.registerLazySingleton<AuthInterceptor>(
+    () => AuthInterceptor(getIt<AuthService>()),
+  );
 
   // ── Services ────────────────────────────────────────────────────────────────
   getIt.registerLazySingleton<ProductService>(
@@ -24,12 +48,6 @@ void setupDependencies() {
   );
   getIt.registerLazySingleton<CheckoutService>(
     () => CheckoutService(getIt<Dio>()),
-  );
-  getIt.registerLazySingleton<CategoryListService>(
-    () => CategoryListService(getIt<Dio>()),
-  );
-  getIt.registerLazySingleton<CategorySelectProductService>(
-    () => CategorySelectProductService(getIt<Dio>()),
   );
   getIt.registerLazySingleton<CategoryService>(
     () => CategoryService(getIt<Dio>()),
@@ -44,9 +62,8 @@ void setupDependencies() {
   );
   getIt.registerLazySingleton<CategoriesRepository>(
     () => CategoriesRepository(
-      getIt<CategoryListService>(),
       getIt<CategoryService>(),
-      getIt<CategorySelectProductService>(),
+      getIt<ProductRepository>(),
     ),
   );
 
@@ -54,8 +71,7 @@ void setupDependencies() {
 
   // Factory: nova instância ao entrar na tela
   getIt.registerFactory<ProductBloc>(
-    () =>
-        ProductBloc(getIt<ProductRepository>(), getIt<CategoriesRepository>()),
+    () => ProductBloc(getIt<ProductRepository>(), getIt<CategoriesRepository>()),
   );
   getIt.registerFactory<ProductDetailBloc>(() => ProductDetailBloc());
   getIt.registerFactory<CategoryBloc>(

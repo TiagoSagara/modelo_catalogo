@@ -17,13 +17,11 @@ class CustomBottomAppBar extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class _CustomBottomAppBarState extends State<CustomBottomAppBar> {
-  // Estado para controlar o hover
   bool _isDropdownHovered = false;
 
   @override
   Widget build(BuildContext context) {
-    // Definimos cores fixas para o exemplo, mas o ideal é usar o Theme
-    const Color hoverColor = Color(0xFFEEEEEE); // Cinza muito claro
+    const Color hoverColor = Color(0xFFEEEEEE);
     const double borderRadius = 8.0;
 
     return BlocProvider(
@@ -34,7 +32,6 @@ class _CustomBottomAppBarState extends State<CustomBottomAppBar> {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Row(
           children: [
-            // DETECÇÃO DE HOVER NO DROPDAWN
             MouseRegion(
               onEnter: (_) => setState(() => _isDropdownHovered = true),
               onExit: (_) => setState(() => _isDropdownHovered = false),
@@ -44,12 +41,11 @@ class _CustomBottomAppBarState extends State<CustomBottomAppBar> {
                 width: 160,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: _isDropdownHovered ? hoverColor : Colors.transparent,
+                  color:
+                      _isDropdownHovered ? hoverColor : Colors.transparent,
                   borderRadius: BorderRadius.circular(borderRadius),
                 ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                ), // Padding interno para os elementos
+                padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: BlocBuilder<CategoryBloc, CategoryState>(
                   builder: (context, state) {
                     if (state is CategoryLoading) {
@@ -67,40 +63,44 @@ class _CustomBottomAppBarState extends State<CustomBottomAppBar> {
                       items = state.categories;
                     }
 
-                    return DropdownButton<String>(
+                    return DropdownButton<int>(
                       isExpanded: true,
                       hint: const Text(
-                        "Categorias",
+                        'Categorias',
                         style: TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.w500,
                         ),
-                        overflow: TextOverflow.ellipsis, // Trunca textos longos
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      // Remove a linha padrão de baixo
                       underline: const SizedBox(),
                       icon: const Icon(
                         Icons.arrow_drop_down,
                         color: Colors.black,
                       ),
-                      // Estilização do menu que abre
                       borderRadius: BorderRadius.circular(borderRadius),
                       items: items.map((CategoryModel category) {
-                        return DropdownMenuItem<String>(
-                          value: category.slug,
+                        return DropdownMenuItem<int>(
+                          value: category.idGrp,
                           child: Text(
-                            category.name,
+                            category.nome,
                             style: const TextStyle(fontSize: 13),
                             overflow: TextOverflow.ellipsis,
                           ),
                         );
                       }).toList(),
-                      onChanged: (String? selectedCategorySlug) {
-                        if (selectedCategorySlug != null) {
-                          // ✅ Navegando pelo nome da rota definido no router.dart
+                      onChanged: (int? selectedCategoryId) {
+                        if (selectedCategoryId != null) {
+                          // Encontra o nome da categoria para exibição
+                          final cat = items.firstWhere(
+                            (c) => c.idGrp == selectedCategoryId,
+                          );
                           context.pushNamed(
                             AppRouters.productGroup,
-                            pathParameters: {'category': selectedCategorySlug},
+                            pathParameters: {
+                              'category': selectedCategoryId.toString(),
+                            },
+                            extra: cat.nome,
                           );
                         }
                       },
@@ -114,14 +114,14 @@ class _CustomBottomAppBarState extends State<CustomBottomAppBar> {
             TextButton(
               onPressed: () => context.push(AppRouters.productList),
               child: const Text(
-                "Produtos",
+                'Produtos',
                 style: TextStyle(color: Colors.black),
               ),
             ),
             TextButton(
               onPressed: () => context.push(AppRouters.salePage),
               child: const Text(
-                "Promoções",
+                'Carrinho',
                 style: TextStyle(color: Colors.black),
               ),
             ),

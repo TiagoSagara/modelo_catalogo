@@ -29,7 +29,7 @@ class CategoryBloc extends Cubit<CategoryState> {
       final categories = await repository.getCategories();
       emit(CategoryLoaded(categories));
     } catch (e) {
-      emit(CategoryError("Falha ao carregar categorias"));
+      emit(CategoryError('Falha ao carregar categorias'));
     }
   }
 }

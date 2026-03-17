@@ -5,10 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:api_produtos/domain/models/product_model.dart';
 
 class CardSearch extends StatelessWidget {
-  const CardSearch({super.key, required this.product, this.promotion = true});
+  const CardSearch({super.key, required this.product, this.showBadge = false});
 
   final Product product;
-  final bool promotion;
+
+  /// Exibe um badge colorido na borda do card (ex: destaque).
+  final bool showBadge;
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +19,7 @@ class CardSearch extends StatelessWidget {
       elevation: 5,
       shadowColor: blackColor,
       shape: Border.all(
-        color: promotion ? errorColor : Colors.transparent,
+        color: showBadge ? errorColor : Colors.transparent,
         width: 2,
       ),
       child: Column(
@@ -33,7 +35,7 @@ class CardSearch extends StatelessWidget {
                     return buildPlaceholder();
                   },
                 ),
-          Divider(
+          const Divider(
             color: Colors.blueGrey,
             thickness: 0.2,
             indent: 15,
@@ -48,7 +50,7 @@ class CardSearch extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.start,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
                   color: Colors.blueGrey,
@@ -58,19 +60,23 @@ class CardSearch extends StatelessWidget {
           ),
           Text(
             PriceFormatter.toReal(product.price),
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: Colors.redAccent,
             ),
           ),
-          if (promotion)
-            Text(
-              'Até: ${product.formattedUpdateDate}',
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
-                color: Colors.redAccent,
+          if (product.aplicacao.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 2.0),
+              child: Text(
+                product.aplicacao,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Colors.blueGrey,
+                ),
               ),
             ),
         ],

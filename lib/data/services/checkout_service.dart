@@ -1,27 +1,20 @@
+import 'package:api_produtos/data/config/api_config.dart';
 import 'package:dio/dio.dart';
 
-/// TODO: Substituir as URLs pelos endpoints reais quando disponíveis.
 class CheckoutService {
   final Dio _dio;
   CheckoutService(this._dio);
 
-  /// Busca o cliente pelo CPF.
-  /// Retorna 200 + dados se encontrado, 404 se não cadastrado.
-  Future<Response> getCustomerByCpf(String cpf) async {
-    return await _dio.get('https://your-api.com/api/customers/$cpf');
-  }
-
-  /// Cadastra um novo cliente com endereço.
-  Future<Response> registerCustomer(Map<String, dynamic> customerJson) async {
+  /// Cria uma nova venda via POST /vendas.
+  Future<Response> createSale(Map<String, dynamic> saleJson) async {
     return await _dio.post(
-      'https://your-api.com/api/customers',
-      data: customerJson,
+      '${ApiConfig.baseUrl}/vendas',
+      data: saleJson,
     );
   }
 
-  /// Busca as informações da empresa (incluindo número do WhatsApp).
-  /// Esperado: { "whatsapp": "5585999999999", "name": "Nome da Empresa" }
-  Future<Response> getCompanyInfo() async {
-    return await _dio.get('https://your-api.com/api/company');
+  /// Consulta uma venda pelo ID via GET /vendas/:id.
+  Future<Response> getSaleById(int saleId) async {
+    return await _dio.get('${ApiConfig.baseUrl}/vendas/$saleId');
   }
 }

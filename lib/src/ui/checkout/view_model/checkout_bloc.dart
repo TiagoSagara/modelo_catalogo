@@ -1,6 +1,6 @@
 import 'package:api_produtos/data/repositories/checkout_repository.dart';
 import 'package:api_produtos/domain/models/card_item_model.dart';
-import 'package:api_produtos/domain/models/checkout_model.dart';
+import 'package:api_produtos/domain/models/sale_model.dart';
 import 'package:api_produtos/utils/price_formatter.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -8,17 +8,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class CheckoutEvent {}
 
-/// Cliente preencheu nome, CPF e endereço → registra e prepara WhatsApp.
+/// Cliente confirmou o pedido com seu nome/identificação.
 class CheckoutFormSubmitted extends CheckoutEvent {
-  final String name;
-  final String cpf;
-  final AddressModel address;
-
-  CheckoutFormSubmitted({
-    required this.name,
-    required this.cpf,
-    required this.address,
-  });
+  final String identificacaoCliente;
+  CheckoutFormSubmitted({required this.identificacaoCliente});
 }
 
 /// Reinicia o fluxo (ex: ao fechar o diálogo).
@@ -32,16 +25,16 @@ class CheckoutInitial extends CheckoutState {}
 
 class CheckoutLoading extends CheckoutState {}
 
-/// Tudo pronto: a view chama openWhatsApp(phone, message) de functions.dart.
-/// O Bloc é responsável apenas por buscar o número e montar a mensagem —
-/// NÃO por construir URLs nem abrir aplicativos (responsabilidade da view).
+/// Venda criada com sucesso — contém a mensagem para WhatsApp e o ID da venda.
 class CheckoutReadyToFinish extends CheckoutState {
   final String companyPhone;
   final String orderMessage;
+  final int saleId;
 
   CheckoutReadyToFinish({
     required this.companyPhone,
     required this.orderMessage,
+    required this.saleId,
   });
 }
 
@@ -70,21 +63,42 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
   ) async {
     emit(CheckoutLoading());
     try {
-      final customer = CustomerModel(
-        name: event.name,
-        cpf: event.cpf,
-        address: event.address,
+      final itens = _cartItems
+          .map(
+            (item) => SaleItemRequest(
+              idProduto: item.product.idPrd,
+              quantidade: item.quantity.toDouble(),
+              preco: item.product.precoVenda,
+              valorDesconto: 0.0,
+            ),
+          )
+          .toList();
+
+      final double valorBruto = _cartItems.fold(
+        0.0,
+        (sum, i) => sum + i.subtotal,
       );
 
-      await _repository.registerCustomer(customer);
+      final request = SaleRequest(
+        valorBruto: valorBruto,
+        valorLiquido: valorBruto,
+        valorDesconto: 0.0,
+        identificacaoCliente: event.identificacaoCliente,
+        observacao: 'Pedido via loja virtual',
+        itens: itens,
+      );
 
-      final companyPhone = await _repository.getCompanyWhatsApp();
-      final orderMessage = _buildOrderMessage(customer);
+      final sale = await _repository.createSale(request);
+      final orderMessage = _buildOrderMessage(sale, event.identificacaoCliente);
+
+      // Número da empresa — ajuste conforme necessidade ou busque da API
+      const companyPhone = '5585999999999';
 
       emit(
         CheckoutReadyToFinish(
           companyPhone: companyPhone,
           orderMessage: orderMessage,
+          saleId: sale.idSds,
         ),
       );
     } catch (e) {
@@ -93,30 +107,27 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
   }
 
   /// Monta o texto do pedido para o WhatsApp.
-  /// Utiliza formatCurrencyBR implicitamente via toStringAsFixed
-  /// (formatação final fica no utils/price_formatter.dart do projeto).
-  String _buildOrderMessage(CustomerModel customer) {
+  String _buildOrderMessage(SaleResponse sale, String identificacao) {
     final buffer = StringBuffer();
-    buffer.writeln('🛒 *Novo Pedido*');
+    buffer.writeln('🛒 *Novo Pedido #${sale.idSds}*');
     buffer.writeln('─────────────────────');
-    buffer.writeln('👤 *Cliente:* ${customer.name}');
-    buffer.writeln('📋 *CPF:* ${customer.cpf}');
-    buffer.writeln('📍 *Endereço:* ${customer.address.formatted}');
+    if (identificacao.isNotEmpty) {
+      buffer.writeln('👤 *Cliente:* $identificacao');
+    }
     buffer.writeln('─────────────────────');
     buffer.writeln('🧾 *Itens do Pedido:*');
 
-    double total = 0;
-    for (final item in _cartItems) {
-      total += item.subtotal;
+    for (final item in sale.itens) {
+      final subtotal = item.preco * item.quantidade;
       buffer.writeln(
-        '• ${item.product.title} '
-        'x${item.quantity} = '
-        '${PriceFormatter.toReal(item.subtotal)} ',
+        '• ${item.descricaoProduto} '
+        'x${item.quantidade.toInt()} = '
+        '${PriceFormatter.toReal(subtotal)}',
       );
     }
 
     buffer.writeln('─────────────────────');
-    buffer.writeln('💰 *Total:  ${PriceFormatter.toReal(total)}*');
+    buffer.writeln('💰 *Total: ${PriceFormatter.toReal(sale.valorLiquido)}*');
     return buffer.toString();
   }
 }

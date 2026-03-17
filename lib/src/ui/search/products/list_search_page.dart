@@ -11,8 +11,8 @@ import 'view_model/product_bloc.dart';
 import 'view_model/list_search_view_model.dart';
 
 class ListSearchPage extends StatefulWidget {
-  final String? categorySlug;
-  const ListSearchPage({super.key, this.categorySlug});
+  final int? categoryId;
+  const ListSearchPage({super.key, this.categoryId});
 
   @override
   State<ListSearchPage> createState() => _ListSearchPageState();
@@ -28,15 +28,30 @@ class _ListSearchPageState extends State<ListSearchPage> {
     _bloc = getIt<ProductBloc>();
     _scrollController.addListener(_onScroll);
 
-    bool hasCategory =
-        widget.categorySlug != null && widget.categorySlug!.isNotEmpty;
-    _bloc.loadProducts(widget.categorySlug ?? "", isCategory: hasCategory);
+    if (widget.categoryId != null) {
+      _bloc.loadProducts(
+        '',
+        isCategory: true,
+        categoryId: widget.categoryId,
+      );
+    } else {
+      _bloc.loadProducts('');
+    }
   }
 
   void _onScroll() {
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
-      _bloc.loadProducts(widget.categorySlug ?? "", isLoadMore: true);
+      if (widget.categoryId != null) {
+        _bloc.loadProducts(
+          '',
+          isCategory: true,
+          categoryId: widget.categoryId,
+          isLoadMore: true,
+        );
+      } else {
+        _bloc.loadProducts('', isLoadMore: true);
+      }
     }
   }
 
@@ -97,7 +112,8 @@ class _ListSearchPageState extends State<ListSearchPage> {
             child: GridView.builder(
               controller: _scrollController,
               padding: const EdgeInsets.all(10),
-              itemCount: hasReachedMax ? products.length : products.length + 1,
+              itemCount:
+                  hasReachedMax ? products.length : products.length + 1,
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: crossAxisCount,
                 mainAxisSpacing: 10,
@@ -113,7 +129,6 @@ class _ListSearchPageState extends State<ListSearchPage> {
                     ),
                   );
                 }
-
                 final product = products[index];
                 return InkWell(
                   onTap: () =>

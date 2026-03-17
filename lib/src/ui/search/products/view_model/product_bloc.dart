@@ -9,21 +9,23 @@ class ProductBloc extends Cubit<ProductState> {
   final CategoriesRepository _categoriesRepository;
 
   ProductBloc(this._productRepository, this._categoriesRepository)
-    : super(ProductInitial());
+      : super(ProductInitial());
 
   List<Product> _allProducts = [];
-  int _currentSkip = 0;
+  int _currentPage = 1;
   bool _isFetching = false;
+  static const int _pageSize = 20;
 
   Future<void> loadProducts(
     String query, {
     bool isCategory = false,
     bool isLoadMore = false,
+    int? categoryId,
   }) async {
     if (_isFetching) return;
 
     if (!isLoadMore) {
-      _currentSkip = 0;
+      _currentPage = 1;
       _allProducts = [];
       emit(ProductLoading());
     }
@@ -31,18 +33,30 @@ class ProductBloc extends Cubit<ProductState> {
     _isFetching = true;
 
     try {
-      final newProducts = isCategory
-          ? await _categoriesRepository.getProductsByCategory(query)
-          : await _productRepository.fetchProducts(query, skip: _currentSkip);
+      List<Product> newProducts;
+
+      if (isCategory && categoryId != null) {
+        newProducts = await _categoriesRepository.getProductsByCategory(
+          categoryId,
+          page: _currentPage,
+          limit: _pageSize,
+        );
+      } else {
+        newProducts = await _productRepository.fetchProducts(
+          query,
+          page: _currentPage,
+          limit: _pageSize,
+        );
+      }
 
       _allProducts.addAll(newProducts);
-      _currentSkip += newProducts.length;
+      _currentPage++;
 
-      bool reachedMax = newProducts.length < 20;
+      final bool reachedMax = newProducts.length < _pageSize;
 
       emit(ProductLoaded(List.from(_allProducts), hasReachedMax: reachedMax));
     } catch (e) {
-      emit(ProductError("Erro ao carregar produtos"));
+      emit(ProductError('Erro ao carregar produtos'));
     } finally {
       _isFetching = false;
     }

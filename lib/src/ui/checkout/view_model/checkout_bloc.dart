@@ -74,10 +74,8 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
           )
           .toList();
 
-      final double valorBruto = _cartItems.fold(
-        0.0,
-        (sum, i) => sum + i.subtotal,
-      );
+      final double valorBruto =
+          _cartItems.fold(0.0, (sum, i) => sum + i.subtotal);
 
       final request = SaleRequest(
         valorBruto: valorBruto,

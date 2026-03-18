@@ -2,6 +2,8 @@ import 'package:api_produtos/domain/models/categories_bottom_appbar_bloc.dart';
 import 'package:api_produtos/domain/models/categories_model.dart';
 import 'package:api_produtos/routing/routers.dart';
 import 'package:api_produtos/dependences/service_locator.dart';
+import 'package:api_produtos/src/ui/core/components/custom_shopping_car.dart';
+import 'package:api_produtos/src/ui/core/style/app_colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -28,7 +30,7 @@ class _CustomBottomAppBarState extends State<CustomBottomAppBar> {
       create: (_) => getIt<CategoryBloc>()..fetchCategories(),
       child: Container(
         color: Colors.transparent,
-        height: 50,
+        height: 55,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Row(
           children: [
@@ -41,8 +43,7 @@ class _CustomBottomAppBarState extends State<CustomBottomAppBar> {
                 width: 160,
                 height: 40,
                 decoration: BoxDecoration(
-                  color:
-                      _isDropdownHovered ? hoverColor : Colors.transparent,
+                  color: _isDropdownHovered ? hoverColor : Colors.transparent,
                   borderRadius: BorderRadius.circular(borderRadius),
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -68,8 +69,8 @@ class _CustomBottomAppBarState extends State<CustomBottomAppBar> {
                       hint: const Text(
                         'Categorias',
                         style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.w500,
+                          color: azulPadrao,
+                          fontWeight: FontWeight.bold,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -91,7 +92,6 @@ class _CustomBottomAppBarState extends State<CustomBottomAppBar> {
                       }).toList(),
                       onChanged: (int? selectedCategoryId) {
                         if (selectedCategoryId != null) {
-                          // Encontra o nome da categoria para exibição
                           final cat = items.firstWhere(
                             (c) => c.idGrp == selectedCategoryId,
                           );
@@ -115,16 +115,29 @@ class _CustomBottomAppBarState extends State<CustomBottomAppBar> {
               onPressed: () => context.push(AppRouters.productList),
               child: const Text(
                 'Produtos',
-                style: TextStyle(color: Colors.black),
+                style: TextStyle(
+                  color: azulPadrao,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             TextButton(
               onPressed: () => context.push(AppRouters.salePage),
               child: const Text(
-                'Carrinho',
-                style: TextStyle(color: Colors.black),
+                'Promoções',
+                style: TextStyle(
+                  color: azulPadrao,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
+            Expanded(
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: ShoppingCar(),
+              ),
+            ),
+            const SizedBox(width: 16),
           ],
         ),
       ),

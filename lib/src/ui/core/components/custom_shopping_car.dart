@@ -8,16 +8,13 @@ class ShoppingCar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(8.0, 20.0, 8.0, 8.0),
-      child: IconButton.filledTonal(
-        icon: const Icon(
-          Icons.shopping_cart_rounded,
-          color: verdePadrao,
-          size: 35,
-        ),
-        onPressed: () => context.push(AppRouters.salePage),
+    return IconButton.filledTonal(
+      icon: const Icon(
+        Icons.shopping_cart_rounded,
+        color: verdePadrao,
+        size: 25,
       ),
+      onPressed: () => context.push(AppRouters.salePage),
     );
   }
 }

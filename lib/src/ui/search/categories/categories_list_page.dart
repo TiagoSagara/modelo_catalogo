@@ -1,12 +1,11 @@
 import 'package:api_produtos/dependences/service_locator.dart';
-import 'package:api_produtos/routing/routers.dart';
 import 'package:api_produtos/src/ui/core/components/custom_appbar.dart';
 import 'package:api_produtos/src/ui/core/components/product_card.dart';
+import 'package:api_produtos/src/ui/product_detail/widgets/product_detail_bottom_sheet.dart';
 import 'package:api_produtos/src/ui/search/products/view_model/product_bloc.dart';
 import 'package:api_produtos/src/ui/search/products/view_model/list_search_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 class CategoriesListPage extends StatefulWidget {
   /// ID numérico da categoria (id_grp)
@@ -130,8 +129,7 @@ class _CategoriesListPageState extends State<CategoriesListPage> {
               itemBuilder: (context, index) {
                 final product = products[index];
                 return InkWell(
-                  onTap: () =>
-                      context.push(AppRouters.productDetail, extra: product),
+                  onTap: () => showProductDetailBottomSheet(context, product),
                   child: CardSearch(product: product),
                 );
               },

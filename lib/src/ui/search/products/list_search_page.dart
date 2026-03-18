@@ -1,12 +1,10 @@
 import 'package:api_produtos/domain/models/product_model.dart';
-import 'package:api_produtos/routing/routers.dart';
 import 'package:api_produtos/src/ui/core/components/custom_appbar.dart';
 import 'package:api_produtos/src/ui/core/components/product_card.dart';
-import 'package:api_produtos/src/ui/core/components/product_search.dart';
+import 'package:api_produtos/src/ui/product_detail/widgets/product_detail_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:api_produtos/dependences/service_locator.dart';
-import 'package:go_router/go_router.dart';
 import 'view_model/product_bloc.dart';
 import 'view_model/list_search_view_model.dart';
 
@@ -29,11 +27,7 @@ class _ListSearchPageState extends State<ListSearchPage> {
     _scrollController.addListener(_onScroll);
 
     if (widget.categoryId != null) {
-      _bloc.loadProducts(
-        '',
-        isCategory: true,
-        categoryId: widget.categoryId,
-      );
+      _bloc.loadProducts('', isCategory: true, categoryId: widget.categoryId);
     } else {
       _bloc.loadProducts('');
     }
@@ -66,34 +60,25 @@ class _ListSearchPageState extends State<ListSearchPage> {
     return BlocProvider.value(
       value: _bloc,
       child: Scaffold(
-        appBar: CustomAppbar(onItemSelected: (id) {}),
-        body: Column(
-          children: [
-            ProductSearch(
-              onSearch: (query) {
-                _bloc.loadProducts(query, isCategory: false);
-              },
-            ),
-            Expanded(
-              child: BlocBuilder<ProductBloc, ProductState>(
-                builder: (context, state) {
-                  if (state is ProductLoading) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  if (state is ProductError) {
-                    return Center(child: Text(state.message));
-                  }
-                  if (state is ProductLoaded) {
-                    return _buildProductGrid(
-                      state.products,
-                      state.hasReachedMax,
-                    );
-                  }
-                  return const SizedBox.shrink();
-                },
-              ),
-            ),
-          ],
+        appBar: CustomAppbar(
+          onItemSelected: (id) {},
+          onSearch: (query) {
+            _bloc.loadProducts(query, isCategory: false);
+          },
+        ),
+        body: BlocBuilder<ProductBloc, ProductState>(
+          builder: (context, state) {
+            if (state is ProductLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (state is ProductError) {
+              return Center(child: Text(state.message));
+            }
+            if (state is ProductLoaded) {
+              return _buildProductGrid(state.products, state.hasReachedMax);
+            }
+            return const SizedBox.shrink();
+          },
         ),
       ),
     );
@@ -112,8 +97,7 @@ class _ListSearchPageState extends State<ListSearchPage> {
             child: GridView.builder(
               controller: _scrollController,
               padding: const EdgeInsets.all(10),
-              itemCount:
-                  hasReachedMax ? products.length : products.length + 1,
+              itemCount: hasReachedMax ? products.length : products.length + 1,
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: crossAxisCount,
                 mainAxisSpacing: 10,
@@ -131,8 +115,7 @@ class _ListSearchPageState extends State<ListSearchPage> {
                 }
                 final product = products[index];
                 return InkWell(
-                  onTap: () =>
-                      context.push(AppRouters.productDetail, extra: product),
+                  onTap: () => showProductDetailBottomSheet(context, product),
                   child: CardSearch(product: product),
                 );
               },

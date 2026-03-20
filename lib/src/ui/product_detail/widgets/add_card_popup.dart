@@ -48,7 +48,6 @@ class _AddedToCartPopupState extends State<_AddedToCartPopup>
   late final Animation<double> _progressAnim;
 
   static const _duration = Duration(seconds: 3);
-  static const _animIn = Duration(milliseconds: 350);
   static const _animOut = Duration(milliseconds: 320);
 
   @override

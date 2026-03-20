@@ -1,4 +1,3 @@
-import 'package:api_produtos/src/ui/homepage/home_page.dart';
 import 'package:api_produtos/src/ui/sale/sale_page.dart';
 import 'package:api_produtos/src/ui/search/products/list_search_page.dart';
 import 'package:api_produtos/src/ui/search/categories/categories_list_page.dart';
@@ -9,12 +8,8 @@ import 'package:api_produtos/routing/routers.dart';
 
 class AppRouter {
   static final router = GoRouter(
-    initialLocation: AppRouters.home,
+    initialLocation: AppRouters.productList,
     routes: [
-      GoRoute(
-        path: AppRouters.home,
-        builder: (context, state) => const HomePage(),
-      ),
       GoRoute(
         path: AppRouters.productList,
         builder: (context, state) => const ListSearchPage(),

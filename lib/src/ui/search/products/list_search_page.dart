@@ -115,7 +115,9 @@ class _ListSearchPageState extends State<ListSearchPage> {
                 }
                 final product = products[index];
                 return InkWell(
-                  onTap: () => showProductDetailBottomSheet(context, product),
+                  onTap: product.stock > 0
+                      ? () => showProductDetailBottomSheet(context, product)
+                      : null,
                   child: CardSearch(product: product),
                 );
               },

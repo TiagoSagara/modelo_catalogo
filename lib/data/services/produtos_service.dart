@@ -5,7 +5,6 @@ class ProductService {
   final Dio _dio;
   ProductService(this._dio);
 
-  /// Lista produtos com filtros e paginação.
   Future<Response> getProducts(
     String query, {
     int page = 1,
@@ -25,7 +24,6 @@ class ProductService {
     );
   }
 
-  /// Retorna um produto pelo seu ID.
   Future<Response> getProductById(int id) async {
     return await _dio.get('${ApiConfig.baseUrl}/produtos/$id');
   }

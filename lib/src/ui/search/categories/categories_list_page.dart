@@ -8,17 +8,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CategoriesListPage extends StatefulWidget {
-  /// ID numérico da categoria (id_grp)
   final int? categoryId;
-
-  /// Nome da categoria para exibição no cabeçalho
   final String? categoryName;
 
-  const CategoriesListPage({
-    super.key,
-    this.categoryId,
-    this.categoryName,
-  });
+  const CategoriesListPage({super.key, this.categoryId, this.categoryName});
 
   @override
   State<CategoriesListPage> createState() => _CategoriesListPageState();

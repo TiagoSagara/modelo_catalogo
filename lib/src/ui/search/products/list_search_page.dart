@@ -2,6 +2,7 @@ import 'package:api_produtos/domain/models/product_model.dart';
 import 'package:api_produtos/src/ui/core/components/custom_appbar.dart';
 import 'package:api_produtos/src/ui/core/components/product_card.dart';
 import 'package:api_produtos/src/ui/product_detail/widgets/product_detail_bottom_sheet.dart';
+import 'package:api_produtos/src/ui/search/products/widgets/store_banner_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:api_produtos/dependences/service_locator.dart';
@@ -66,19 +67,29 @@ class _ListSearchPageState extends State<ListSearchPage> {
             _bloc.loadProducts(query, isCategory: false);
           },
         ),
-        body: BlocBuilder<ProductBloc, ProductState>(
-          builder: (context, state) {
-            if (state is ProductLoading) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (state is ProductError) {
-              return Center(child: Text(state.message));
-            }
-            if (state is ProductLoaded) {
-              return _buildProductGrid(state.products, state.hasReachedMax);
-            }
-            return const SizedBox.shrink();
-          },
+        body: Column(
+          children: [
+            const StoreBannerCard(),
+            Expanded(
+              child: BlocBuilder<ProductBloc, ProductState>(
+                builder: (context, state) {
+                  if (state is ProductLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (state is ProductError) {
+                    return Center(child: Text(state.message));
+                  }
+                  if (state is ProductLoaded) {
+                    return _buildProductGrid(
+                      state.products,
+                      state.hasReachedMax,
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );

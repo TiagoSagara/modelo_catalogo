@@ -1,7 +1,4 @@
 import 'package:api_produtos/src/ui/core/components/product_search.dart';
-import 'package:api_produtos/src/ui/core/style/app_colors.dart';
-import 'package:api_produtos/src/ui/core/style/app_dimens.dart';
-import 'package:api_produtos/utils/image_list.dart';
 import 'package:api_produtos/src/ui/core/components/custom_bottom_appbar.dart';
 import 'package:flutter/material.dart' hide BottomAppBar;
 
@@ -9,49 +6,65 @@ typedef SectionSelectedCallback = void Function(String id);
 
 class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
   final SectionSelectedCallback onItemSelected;
-
   final void Function(String query)? onSearch;
 
   const CustomAppbar({super.key, required this.onItemSelected, this.onSearch});
 
   @override
-  Size get preferredSize => const Size.fromHeight(140.0);
+  Size get preferredSize => const Size.fromHeight(136.0);
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final double logoSize = screenWidth < AppDimens.kMinScreen ? 60.0 : 85.0;
-
     return AppBar(
-      backgroundColor: lightGreyColor,
-      elevation: 5.0,
-      shadowColor: Colors.black,
+      backgroundColor: Colors.white,
+      elevation: 0,
+      shadowColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,
-      toolbarHeight: 100,
+      toolbarHeight: 88,
       automaticallyImplyLeading: false,
-
-      title: Row(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 5.0),
-            child: Image.asset(
-              ImageList.logoMultSistem,
-              width: logoSize,
-              fit: BoxFit.contain,
+      flexibleSpace: _AppBarShadow(),
+      titleSpacing: 0,
+      title: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 16, 12, 0),
+        child: onSearch != null
+            ? ProductSearch(onSearch: onSearch!)
+            : const SizedBox.shrink(),
+      ),
+      bottom: PreferredSize(
+        preferredSize: const Size.fromHeight(48),
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border(
+              top: BorderSide(color: const Color(0xFFE8ECF0), width: 1),
             ),
           ),
+          child: const CustomBottomAppBar(),
+        ),
+      ),
+    );
+  }
+}
 
-          Expanded(
-            child: onSearch != null
-                ? ProductSearch(onSearch: onSearch!)
-                : const SizedBox.shrink(),
+class _AppBarShadow extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF1A2B4A).withOpacity(0.06),
+            blurRadius: 20,
+            spreadRadius: 0,
+            offset: const Offset(0, 4),
+          ),
+          BoxShadow(
+            color: const Color(0xFF1A2B4A).withOpacity(0.03),
+            blurRadius: 6,
+            spreadRadius: 0,
+            offset: const Offset(0, 1),
           ),
         ],
-      ),
-
-      bottom: const PreferredSize(
-        preferredSize: Size.fromHeight(45),
-        child: CustomBottomAppBar(),
       ),
     );
   }

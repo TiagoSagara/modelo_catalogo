@@ -1,3 +1,4 @@
+import 'package:api_produtos/src/ui/sale/view_model/sale_bloc.dart';
 import 'package:api_produtos/domain/models/categories_bottom_appbar_bloc.dart';
 import 'package:api_produtos/domain/models/categories_model.dart';
 import 'package:api_produtos/routing/routers.dart';
@@ -134,7 +135,15 @@ class _CustomBottomAppBarState extends State<CustomBottomAppBar> {
             Expanded(
               child: Align(
                 alignment: Alignment.centerRight,
-                child: ShoppingCar(),
+                child: BlocBuilder<SaleBloc, SaleState>(
+                  builder: (context, state) {
+                    int count = 0;
+                    if (state is SaleLoaded) {
+                      count = state.products.fold(0, (sum, item) => sum + item.quantity);
+                    }
+                    return ShoppingCar(itemCount: count);
+                  },
+                ),
               ),
             ),
             const SizedBox(width: 16),

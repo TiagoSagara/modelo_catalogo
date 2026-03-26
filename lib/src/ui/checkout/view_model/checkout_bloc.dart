@@ -1,6 +1,7 @@
 import 'package:api_produtos/data/repositories/checkout_repository.dart';
 import 'package:api_produtos/domain/models/card_item_model.dart';
 import 'package:api_produtos/domain/models/sale_model.dart';
+import 'package:api_produtos/utils/price_formatter.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 // ──────────────────────────────── Eventos ─────────────────────────────────────
@@ -24,10 +25,16 @@ class CheckoutInitial extends CheckoutState {}
 
 class CheckoutLoading extends CheckoutState {}
 
-/// Venda criada com sucesso — contém a resposta completa da API.
+/// Venda criada com sucesso.
+/// Carrega a resposta da API e a mensagem pré-montada para o WhatsApp.
 class CheckoutSuccess extends CheckoutState {
   final SaleResponse sale;
-  CheckoutSuccess(this.sale);
+
+  /// Mensagem pré-preenchida para o WhatsApp da empresa.
+  /// Inclui itens do pedido e instrução para o cliente informar nome/endereço.
+  final String whatsappMessage;
+
+  CheckoutSuccess({required this.sale, required this.whatsappMessage});
 }
 
 class CheckoutError extends CheckoutState {
@@ -81,9 +88,41 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
       );
 
       final sale = await _repository.createSale(request);
-      emit(CheckoutSuccess(sale));
+
+      final message = _buildWhatsappMessage(sale, event.identificacaoCliente);
+
+      emit(CheckoutSuccess(sale: sale, whatsappMessage: message));
     } catch (e) {
       emit(CheckoutError('Erro ao processar pedido. Tente novamente.'));
     }
+  }
+
+  String _buildWhatsappMessage(SaleResponse sale, String identificacao) {
+    final buffer = StringBuffer();
+    buffer.writeln('🛒 *Novo Pedido #${sale.idSds}*');
+    buffer.writeln('─────────────────────');
+    if (identificacao.isNotEmpty) {
+      buffer.writeln('👤 *Identificação:* $identificacao');
+    }
+    buffer.writeln('─────────────────────');
+    buffer.writeln('🧾 *Itens do Pedido:*');
+
+    for (final item in sale.itens) {
+      buffer.writeln(
+        '• ${item.descricaoProduto} '
+        'x${item.quantidade.toInt()} = '
+        '${PriceFormatter.toReal(item.valorLiquido)}',
+      );
+    }
+
+    buffer.writeln('─────────────────────');
+    buffer.writeln('💰 *Total: ${PriceFormatter.toReal(sale.valorLiquido)}*');
+    buffer.writeln('─────────────────────');
+    buffer.writeln('');
+    buffer.writeln('Para confirmar a entrega, por favor informe:');
+    buffer.writeln('📝 *Nome completo*');
+    buffer.write('📍 *Endereço de entrega* (rua, número, bairro, cidade)');
+
+    return buffer.toString();
   }
 }

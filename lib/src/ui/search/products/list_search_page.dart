@@ -2,12 +2,12 @@ import 'package:api_produtos/domain/models/product_model.dart';
 import 'package:api_produtos/src/ui/core/components/custom_appbar.dart';
 import 'package:api_produtos/src/ui/core/components/product_card.dart';
 import 'package:api_produtos/src/ui/product_detail/widgets/product_detail_bottom_sheet.dart';
-import 'package:api_produtos/src/ui/search/products/view_model/list_search_view_model.dart';
 import 'package:api_produtos/src/ui/search/products/widgets/store_banner_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:api_produtos/dependences/service_locator.dart';
 import 'view_model/product_bloc.dart';
+import 'view_model/list_search_view_model.dart';
 
 class ListSearchPage extends StatefulWidget {
   final int? categoryId;
@@ -76,7 +76,7 @@ class _ListSearchPageState extends State<ListSearchPage> {
               return Center(child: Text(state.message));
             }
             if (state is ProductLoaded) {
-              return _buildSliverLayout(state.products, state.hasReachedMax);
+              return _buildScrollView(state.products, state.hasReachedMax);
             }
             return const SizedBox.shrink();
           },
@@ -85,49 +85,64 @@ class _ListSearchPageState extends State<ListSearchPage> {
     );
   }
 
-  Widget _buildSliverLayout(List<Product> products, bool hasReachedMax) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        int crossAxisCount = constraints.maxWidth >= 1100
-            ? 4
-            : (constraints.maxWidth >= 700 ? 3 : 2);
+  Widget _buildScrollView(List<Product> products, bool hasReachedMax) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isMobile = screenWidth < 600;
+    final int crossAxisCount = screenWidth >= 900
+        ? 4
+        : (screenWidth >= 600 ? 3 : 2);
+    final double childAspectRatio = isMobile ? 0.62 : 0.78;
 
-        return CustomScrollView(
-          controller: _scrollController,
-          slivers: [
-            const SliverToBoxAdapter(child: StoreBannerCard()),
+    final int itemCount = hasReachedMax ? products.length : products.length + 1;
 
-            SliverPadding(
-              padding: const EdgeInsets.all(10),
-              sliver: SliverGrid(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: crossAxisCount,
-                  mainAxisSpacing: 10,
-                  crossAxisSpacing: 10,
-                  childAspectRatio: crossAxisCount == 2 ? 0.6 : 0.8,
-                ),
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  final product = products[index];
-                  return InkWell(
-                    onTap: product.stock > 0
-                        ? () => showProductDetailBottomSheet(context, product)
-                        : null,
-                    child: CardSearch(product: product),
-                  );
-                }, childCount: products.length),
-              ),
+    Widget scrollView = CustomScrollView(
+      controller: _scrollController,
+      slivers: [
+        // Banner — rola junto com os produtos e some ao scrollar
+        const SliverToBoxAdapter(child: StoreBannerCard()),
+
+        // Grid de produtos
+        SliverPadding(
+          padding: const EdgeInsets.all(10),
+          sliver: SliverGrid(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: crossAxisCount,
+              mainAxisSpacing: 10,
+              crossAxisSpacing: 10,
+              childAspectRatio: childAspectRatio,
             ),
+            delegate: SliverChildBuilderDelegate((context, index) {
+              if (index >= products.length) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 20),
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              }
+              final product = products[index];
+              return InkWell(
+                onTap: product.stock > 0
+                    ? () => showProductDetailBottomSheet(context, product)
+                    : null,
+                child: CardSearch(product: product),
+              );
+            }, childCount: itemCount),
+          ),
+        ),
+      ],
+    );
 
-            if (!hasReachedMax)
-              const SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 20),
-                  child: Center(child: CircularProgressIndicator()),
-                ),
-              ),
-          ],
-        );
-      },
+    // Mobile: usa a largura total
+    if (isMobile) return scrollView;
+
+    // Tablet / Desktop: centralizado com largura máxima de 1100 px
+    return Align(
+      alignment: Alignment.topCenter,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 1100),
+        child: scrollView,
+      ),
     );
   }
 }

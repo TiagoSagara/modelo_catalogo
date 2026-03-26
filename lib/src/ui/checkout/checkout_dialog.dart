@@ -6,10 +6,13 @@ import 'package:api_produtos/src/ui/checkout/view_model/checkout_bloc.dart';
 import 'package:api_produtos/src/ui/checkout/view_model/checkout_view_model.dart';
 import 'package:api_produtos/src/ui/core/style/app_colors.dart';
 import 'package:api_produtos/src/ui/sale/view_model/sale_bloc.dart';
+import 'package:api_produtos/utils/functions.dart';
 import 'package:api_produtos/utils/price_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
+const _kCompanyPhone = '5585999999999'; // TODO: colocar o número vindo da API
 
 Future<void> showCheckoutDialog({
   required BuildContext context,
@@ -43,18 +46,19 @@ class _CheckoutDialog extends StatelessWidget {
       },
       builder: (context, state) {
         if (state is CheckoutLoading) return const _LoadingDialog();
+
         if (state is CheckoutSuccess) {
           return _SuccessDialog(
             sale: state.sale,
+            whatsappMessage: state.whatsappMessage,
             onFinish: () {
-              // Limpa o carrinho e fecha o dialog
               getIt<SaleBloc>().clearCart();
               Navigator.of(context).pop();
-              // Navega para a lista de produtos
               context.go(AppRouters.productList);
             },
           );
         }
+
         return _OrderForm(viewModel: viewModel);
       },
     );
@@ -88,9 +92,14 @@ class _LoadingDialog extends StatelessWidget {
 
 class _SuccessDialog extends StatelessWidget {
   final SaleResponse sale;
+  final String whatsappMessage;
   final VoidCallback onFinish;
 
-  const _SuccessDialog({required this.sale, required this.onFinish});
+  const _SuccessDialog({
+    required this.sale,
+    required this.whatsappMessage,
+    required this.onFinish,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -139,7 +148,7 @@ class _SuccessDialog extends StatelessWidget {
                   sale.identificacaoCliente!.isNotEmpty) ...[
                 const SizedBox(height: 4),
                 Text(
-                  'Cliente: ${sale.identificacaoCliente}',
+                  'Identificação: ${sale.identificacaoCliente}',
                   style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
                 ),
               ],
@@ -149,7 +158,7 @@ class _SuccessDialog extends StatelessWidget {
 
               // Lista de itens
               ConstrainedBox(
-                constraints: const BoxConstraints(maxHeight: 220),
+                constraints: const BoxConstraints(maxHeight: 200),
                 child: ListView.separated(
                   shrinkWrap: true,
                   itemCount: sale.itens.length,
@@ -160,7 +169,7 @@ class _SuccessDialog extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
-                          width: 24,
+                          width: 28,
                           height: 24,
                           decoration: BoxDecoration(
                             color: azulPadrao.withValues(alpha: 0.08),
@@ -219,25 +228,93 @@ class _SuccessDialog extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
 
-              // Botão de concluir
+              // Aviso sobre o WhatsApp
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE8F5E9),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: verdePadrao.withValues(alpha: 0.3)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.info_outline_rounded,
+                      color: verdePadrao,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Confirme seu pedido pelo WhatsApp e informe nome e endereço de entrega.',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey.shade700,
+                          height: 1.4,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Botão WhatsApp
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: verdePadrao,
+                    backgroundColor: const Color(0xFF25D366),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  icon: const Icon(Icons.storefront_outlined, size: 18),
+                  icon: const Icon(Icons.send_rounded, size: 18),
                   label: const Text(
-                    'Continuar comprando',
+                    'Confirmar pelo WhatsApp',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
+                  onPressed: () async {
+                    await openWhatsApp(
+                      phoneRaw: _kCompanyPhone,
+                      message: whatsappMessage,
+                      onError: (msg) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(msg),
+                              backgroundColor: errorColor,
+                            ),
+                          );
+                        }
+                      },
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 10),
+
+              // Botão continuar comprando
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: azulPadrao,
+                    side: const BorderSide(color: azulPadrao),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  icon: const Icon(Icons.storefront_outlined, size: 18),
+                  label: const Text('Continuar comprando'),
                   onPressed: onFinish,
                 ),
               ),
@@ -248,8 +325,6 @@ class _SuccessDialog extends StatelessWidget {
     );
   }
 }
-
-// ─────────────────────── Formulário ────────────────────────────────────────────
 
 class _OrderForm extends StatefulWidget {
   final CheckoutViewModel viewModel;

@@ -101,35 +101,44 @@ class _CategoriesListPageState extends State<CategoriesListPage> {
   }
 
   Widget _buildProductGrid(BuildContext context, List products) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        int crossAxisCount = constraints.maxWidth >= 1100
-            ? 4
-            : (constraints.maxWidth >= 700 ? 3 : 2);
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isMobile = screenWidth < 600;
 
-        return Center(
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 1100),
-            child: GridView.builder(
-              padding: const EdgeInsets.all(10),
-              itemCount: products.length,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: crossAxisCount,
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-                childAspectRatio: crossAxisCount == 2 ? 0.6 : 0.8,
-              ),
-              itemBuilder: (context, index) {
-                final product = products[index];
-                return InkWell(
-                  onTap: () => showProductDetailBottomSheet(context, product),
-                  child: CardSearch(product: product),
-                );
-              },
-            ),
-          ),
+    // Colunas: 2 no mobile, 3 no tablet, 4 no desktop
+    final int crossAxisCount = screenWidth >= 900
+        ? 4
+        : (screenWidth >= 600 ? 3 : 2);
+
+    final double childAspectRatio = isMobile ? 0.62 : 0.78;
+
+    final grid = GridView.builder(
+      padding: const EdgeInsets.all(10),
+      itemCount: products.length,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount,
+        mainAxisSpacing: 10,
+        crossAxisSpacing: 10,
+        childAspectRatio: childAspectRatio,
+      ),
+      itemBuilder: (context, index) {
+        final product = products[index];
+        return InkWell(
+          onTap: () => showProductDetailBottomSheet(context, product),
+          child: CardSearch(product: product),
         );
       },
+    );
+
+    // Mobile: grade ocupa toda a largura (comportamento esperado)
+    if (isMobile) return grid;
+
+    // Tablet / Desktop: centralizado com largura máxima de 1100 px
+    return Align(
+      alignment: Alignment.topCenter,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 1100),
+        child: grid,
+      ),
     );
   }
 }

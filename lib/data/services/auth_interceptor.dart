@@ -32,8 +32,8 @@ class AuthInterceptor extends Interceptor {
   ) async {
     if (err.response?.statusCode == 401 &&
         !err.requestOptions.path.contains('/auth/token')) {
-      // Token expirado: invalida cache e tenta uma única vez
-      _authService.invalidateToken();
+      // Token expirado: invalida cache (memória + SharedPreferences) e tenta uma única vez
+      await _authService.invalidateToken();
       try {
         final token = await _authService.getToken();
         final opts = err.requestOptions

@@ -8,9 +8,4 @@ class SaleViewModel {
   void removeProduct(CartItem item) {
     bloc.removeFromCart(item);
   }
-
-  void finishSale() {
-    // Lógica para persistir a venda no banco/API
-    print("Venda finalizada com sucesso!");
-  }
 }

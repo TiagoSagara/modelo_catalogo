@@ -10,9 +10,7 @@ class CheckoutViewModel {
 
   /// Envia o formulário (somente identificação do cliente).
   void submitForm({required String identificacaoCliente}) {
-    bloc.add(
-      CheckoutFormSubmitted(identificacaoCliente: identificacaoCliente),
-    );
+    bloc.add(CheckoutFormSubmitted(identificacaoCliente: identificacaoCliente));
   }
 
   /// Reseta o estado ao fechar o diálogo.

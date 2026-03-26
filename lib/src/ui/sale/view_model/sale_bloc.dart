@@ -40,6 +40,12 @@ class SaleBloc extends Cubit<SaleState> {
     _updateCart();
   }
 
+  /// Esvazia o carrinho após a venda ser criada com sucesso.
+  void clearCart() {
+    _cartItems.clear();
+    _updateCart();
+  }
+
   void _updateCart() {
     final double total = _cartItems.fold(0, (sum, item) => sum + item.subtotal);
     emit(SaleLoaded(List.from(_cartItems), total));
